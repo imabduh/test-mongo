@@ -1,5 +1,5 @@
 import express from "express";
-import mongoose from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 
 const app = express();
 const PORT = 3001;
@@ -14,10 +14,23 @@ mongoose.connect(
 // Membuat Schema dan Model
 
 // Endpoint GET untuk mengambil semua data
+const Catalog = new Schema(
+  {
+    name: { type: String, unique: true, required: true },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+const CatalogModel = model("Catalog", Catalog);
+
 app.get("/", async (req, res) => {
   try {
-    const db = mongoose.connection.db;
-    const items = await db.collection("catalogs").find().toArray();
+    const items = await CatalogModel.find()
     res.json(items);
   } catch (err) {
     res.status(500).json({ message: err.message });
